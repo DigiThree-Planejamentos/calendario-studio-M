@@ -1481,6 +1481,7 @@ document.getElementById('datasMonthSel').addEventListener('change', renderDatasL
 document.getElementById('datasOverlay').addEventListener('click', e=>{if(e.target===e.currentTarget)closeDatasModal();});
 
 
+
 const GITHUB_CONFIG = {
   owner: "DigiThree-Planejamentos",
   repo: "calendario-studio-M",
@@ -1489,19 +1490,20 @@ const GITHUB_CONFIG = {
 };
 
 const GITHUB_TOKEN_KEY = 'github_token';
+const PERSIST_START = '<!-- PERSISTED_CALENDAR_STATE_START -->';
+const PERSIST_END = '<!-- PERSISTED_CALENDAR_STATE_END -->';
 
-function getGithubConfig(){
+function getGithubConfig() {
   return { ...GITHUB_CONFIG };
 }
 
 function getGithubToken(forceReset = false) {
   if (forceReset) localStorage.removeItem(GITHUB_TOKEN_KEY);
-
   let token = localStorage.getItem(GITHUB_TOKEN_KEY);
   if (!token) {
-    token = window.prompt('Cole seu token do GitHub com permissão Contents: Read and write');
+    token = window.prompt('Cole seu token do GitHub com permissão de Contents (Read and write):');
     if (!token) return null;
-    token = String(token).trim();
+    token = token.trim();
     if (!token) return null;
     localStorage.setItem(GITHUB_TOKEN_KEY, token);
   }
@@ -1513,43 +1515,41 @@ function resetGithubToken() {
   alert('Token do GitHub removido. Ao salvar novamente, ele será solicitado.');
 }
 
-function buildGithubHeaders(token, extra = {}) {
+function buildGithubHeaders(token, scheme) {
   return {
+    Authorization: `${scheme} ${token}`,
     Accept: 'application/vnd.github+json',
-    Authorization: `token ${token}`,
-    'X-GitHub-Api-Version': '2022-11-28',
-    ...extra
+    'X-GitHub-Api-Version': '2022-11-28'
   };
 }
 
-async function githubRequest(url, options = {}, token) {
-  const resp = await fetch(url, {
-    ...options,
-    headers: buildGithubHeaders(token, options.headers || {})
-  });
+async function githubFetch(url, options = {}, token) {
+  const schemes = ['Bearer', 'token'];
+  let lastResp = null;
 
-  if (!resp.ok) {
-    const raw = await resp.text();
-    let parsed = null;
-    try { parsed = JSON.parse(raw); } catch (_) {}
-    const message = parsed?.message ? `${parsed.message}` : raw || `HTTP ${resp.status}`;
-    const err = new Error(message);
-    err.status = resp.status;
-    err.body = raw;
-    throw err;
+  for (const scheme of schemes) {
+    const resp = await fetch(url, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+        ...buildGithubHeaders(token, scheme)
+      }
+    });
+    lastResp = resp;
+    if (resp.ok) return resp;
+    if (resp.status !== 401 && resp.status !== 403) return resp;
   }
 
-  const contentType = resp.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) return resp.json();
-  return resp.text();
+  return lastResp;
 }
 
 function encodeBase64Unicode(str) {
   const bytes = new TextEncoder().encode(str);
-  let binary = '';
   const chunkSize = 0x8000;
+  let binary = '';
   for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
   }
   return btoa(binary);
 }
@@ -1566,9 +1566,9 @@ function collectCalendarState() {
       year: document.getElementById('hdrYear')?.innerText || '',
       sub: document.getElementById('hdrSub')?.innerText || ''
     },
-    posts: JSON.parse(JSON.stringify(Array.isArray(POSTS) ? POSTS : [])),
-    planData: JSON.parse(JSON.stringify(PLAN_DATA || {})),
-    monthsConfig: JSON.parse(JSON.stringify(Array.isArray(MONTHS_CONFIG) ? MONTHS_CONFIG : [])),
+    posts: JSON.parse(JSON.stringify(typeof POSTS !== 'undefined' ? POSTS : [])),
+    planData: JSON.parse(JSON.stringify(typeof PLAN_DATA !== 'undefined' ? PLAN_DATA : {})),
+    monthsConfig: JSON.parse(JSON.stringify(typeof MONTHS_CONFIG !== 'undefined' ? MONTHS_CONFIG : [])),
     monthNotes,
     currentMonthIdx: typeof currentMonthIdx === 'number' ? currentMonthIdx : 0,
     editMode: !!_editMode
@@ -1579,7 +1579,7 @@ function applyPersistedCalendarState() {
   const state = window.__PERSISTED_CALENDAR_STATE__;
   if (!state || typeof state !== 'object') return;
 
-  if (state.header && typeof state.header === 'object') {
+  if (state.header) {
     const hdrClient = document.getElementById('hdrClient');
     const hdrYear = document.getElementById('hdrYear');
     const hdrSub = document.getElementById('hdrSub');
@@ -1588,46 +1588,57 @@ function applyPersistedCalendarState() {
     if (hdrSub && typeof state.header.sub === 'string') hdrSub.innerText = state.header.sub;
   }
 
-  if (Array.isArray(state.posts)) {
+  if (Array.isArray(state.posts) && typeof POSTS !== 'undefined') {
     POSTS = JSON.parse(JSON.stringify(state.posts));
   }
 
-  if (state.planData && typeof state.planData === 'object') {
+  if (state.planData && typeof state.planData === 'object' && typeof PLAN_DATA !== 'undefined') {
     PLAN_DATA = JSON.parse(JSON.stringify(state.planData));
   }
 
-  if (Array.isArray(state.monthsConfig) && Array.isArray(MONTHS_CONFIG)) {
+  if (Array.isArray(state.monthsConfig) && typeof MONTHS_CONFIG !== 'undefined' && Array.isArray(MONTHS_CONFIG)) {
     MONTHS_CONFIG.length = 0;
     state.monthsConfig.forEach(item => MONTHS_CONFIG.push(item));
   }
 
-  const notes = state.monthNotes && typeof state.monthNotes === 'object' ? state.monthNotes : {};
+  const notes = state.monthNotes || {};
   document.querySelectorAll('.month-notes[data-month]').forEach(el => {
     const saved = notes[String(el.dataset.month)];
     if (typeof saved === 'string') el.innerHTML = saved;
   });
 
-  if (typeof state.currentMonthIdx === 'number' && state.currentMonthIdx >= 0) {
+  if (typeof state.currentMonthIdx === 'number') {
     currentMonthIdx = state.currentMonthIdx;
   }
 
   _editMode = !!state.editMode;
+  document.body.classList.toggle('view-mode', !_editMode);
+  const editBtn = document.getElementById('editModeBtn');
+  if (editBtn) editBtn.textContent = _editMode ? '✏️ Modo Edição' : '👁️ Modo Visualização';
+}
+
+function makePersistedStateBlock(state) {
+  const json = JSON.stringify(state).replace(/<\/script/gi, '<\\/script');
+  return PERSIST_START + '\n' +
+    '<scr' + 'ipt>window.__PERSISTED_CALENDAR_STATE__ = ' + json + ';</scr' + 'ipt>\n' +
+    PERSIST_END;
 }
 
 function upsertPersistedStatePatch(src, state) {
-  const json = JSON.stringify(state).replace(/<\/script/gi, '<\\/script');
-  const markerStart = '<!-- PERSISTED_CALENDAR_STATE_START -->';
-  const markerEnd = '<!-- PERSISTED_CALENDAR_STATE_END -->';
-  const stateBlock = `${markerStart}\n<script>window.__PERSISTED_CALENDAR_STATE__ = ${json};</script>\n${markerEnd}`;
+  const block = makePersistedStateBlock(state);
 
-  if (src.includes(markerStart) && src.includes(markerEnd)) {
-    return src.replace(
-      /<!-- PERSISTED_CALENDAR_STATE_START -->[\s\S]*?<!-- PERSISTED_CALENDAR_STATE_END -->/,
-      stateBlock
-    );
+  if (src.includes(PERSIST_START) && src.includes(PERSIST_END)) {
+    const startIdx = src.indexOf(PERSIST_START);
+    const endIdx = src.indexOf(PERSIST_END) + PERSIST_END.length;
+    return src.slice(0, startIdx) + block + src.slice(endIdx);
   }
 
-  return src.replace(/<script>/i, `${stateBlock}\n<script>`);
+  const firstScriptIdx = src.indexOf('<script>');
+  if (firstScriptIdx !== -1) {
+    return src.slice(0, firstScriptIdx) + block + '\n' + src.slice(firstScriptIdx);
+  }
+
+  return src.replace('</body>', block + '\n</body>');
 }
 
 function buildPersistentHtml() {
@@ -1635,20 +1646,9 @@ function buildPersistentHtml() {
   let src = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 
   src = upsertPersistedStatePatch(src, state);
-  src = src.replace(/<\/script><input type="file"[^>]*style="display:\s*none;?"[^>]*>\s*/gi, '</script>');
-  src = src.replace(/\n?<input type="file"[^>]*style="display:\s*none;?"[^>]*>\s*$/i, '');
+  src = src.replace(/<input type="file"[^>]*style="display:\s*none;?"[^>]*>\s*$/m, '');
+  src = src.replace(/<\/script><input type="file"[^>]*style="display:\s*none;?"[^>]*>\s*/g, '</scr' + 'ipt>');
   return src;
-}
-
-function explainGithubError(err) {
-  if (!err) return 'Erro desconhecido ao salvar no GitHub.';
-  const body = err.body || '';
-  if (err.status === 401) return 'Token inválido ou expirado. Gere um novo token com permissão Contents: Read and write.';
-  if (err.status === 403) return 'O GitHub recusou o acesso. Confira se o token tem permissão Contents: Read and write e acesso a esse repositório.';
-  if (err.status === 404) return 'Repositório ou arquivo não encontrado. Revise owner, repo, branch e path no GITHUB_CONFIG.';
-  if (err.status === 409) return 'Conflito ao salvar. Atualize a página publicada mais recente e tente novamente.';
-  if (err.status === 422) return `GitHub rejeitou o conteúdo enviado. ${body || err.message}`;
-  return err.message || 'Erro ao salvar no GitHub.';
 }
 
 async function salvarAlteracoes() {
@@ -1663,46 +1663,67 @@ async function salvarAlteracoes() {
     alert('Preencha owner e repo no GITHUB_CONFIG antes de salvar.');
     return;
   }
+
   if (!path || path !== 'index.html') {
-    alert('O path do GITHUB_CONFIG deve ser exatamente index.html.');
+    alert('O path do GITHUB_CONFIG deve ser exatamente index.html para este arquivo.');
     return;
   }
 
   try {
     showToast('☁️ Salvando no GitHub...');
 
-    const encodedOwner = encodeURIComponent(owner);
-    const encodedRepo = encodeURIComponent(repo);
     const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-    const baseUrl = `https://api.github.com/repos/${encodedOwner}/${encodedRepo}/contents/${encodedPath}`;
+    const baseRepoUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+    const contentsUrl = `${baseRepoUrl}/contents/${encodedPath}`;
+    const readUrl = `${contentsUrl}?ref=${encodeURIComponent(branch)}`;
 
-    let sha = null;
-    try {
-      const currentFile = await githubRequest(`${baseUrl}?ref=${encodeURIComponent(branch)}`, {}, token);
-      sha = currentFile?.sha || null;
-    } catch (err) {
-      if (err.status !== 404) throw err;
+    const repoResp = await githubFetch(baseRepoUrl, {}, token);
+    if (!repoResp.ok) {
+      const errText = await repoResp.text();
+      if (repoResp.status === 404) throw new Error(`Repositório não encontrado. Confira owner e repo. ${errText}`);
+      if (repoResp.status === 401 || repoResp.status === 403) throw new Error(`Token sem acesso ao repositório. Verifique a permissão Contents: Read and write. ${errText}`);
+      throw new Error(`Não foi possível acessar o repositório (${repoResp.status}). ${errText}`);
     }
 
-    const content = buildPersistentHtml();
+    let sha = null;
+    const getResp = await githubFetch(readUrl, {}, token);
+    if (getResp.ok) {
+      const fileData = await getResp.json();
+      sha = fileData.sha || null;
+    } else if (getResp.status !== 404) {
+      const errText = await getResp.text();
+      throw new Error(`Não foi possível ler o arquivo no GitHub (${getResp.status}). ${errText}`);
+    }
+
+    const html = buildPersistentHtml();
     const payload = {
       message: `Atualiza calendário editorial - ${new Date().toLocaleString('pt-BR')}`,
-      content: encodeBase64Unicode(content),
-      branch
+      content: encodeBase64Unicode(html),
+      branch,
+      ...(sha ? { sha } : {})
     };
-    if (sha) payload.sha = sha;
 
-    await githubRequest(baseUrl, {
+    const putResp = await githubFetch(contentsUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     }, token);
 
+    if (!putResp.ok) {
+      const errText = await putResp.text();
+      if (putResp.status === 401 || putResp.status === 403) throw new Error(`GitHub recusou o salvamento. Revise o token e a permissão Contents: Read and write. ${errText}`);
+      if (putResp.status === 404) throw new Error(`Arquivo ou repositório não encontrado ao salvar. Confira owner, repo e path. ${errText}`);
+      if (putResp.status === 409) throw new Error(`Conflito ao salvar. Atualize a página publicada mais recente e tente novamente. ${errText}`);
+      if (putResp.status === 422) throw new Error(`GitHub rejeitou o conteúdo enviado. Confira owner, repo, branch e path. ${errText}`);
+      throw new Error(`Não foi possível salvar no GitHub (${putResp.status}). ${errText}`);
+    }
+
     showToast('✅ Alterações salvas no GitHub!');
     alert('Alterações salvas no GitHub com sucesso.');
   } catch (err) {
-    console.error('Erro ao salvar no GitHub:', err);
-    alert(explainGithubError(err));
+    console.error(err);
+    showToast('❌ Erro ao salvar no GitHub.');
+    alert(err.message || 'Erro ao salvar no GitHub.');
   }
 }
 
@@ -1749,6 +1770,5 @@ const observer = new IntersectionObserver((entries)=>{
 },{threshold:0.15});
 document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
 </script>
-
 
 </body></html>
