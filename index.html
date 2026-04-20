@@ -1512,7 +1512,14 @@ function buildGithubHeaders(token) {
 }
 
 function encodeBase64Unicode(str) {
-  return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+  const bytes = new TextEncoder().encode(str);
+  const chunkSize = 0x8000;
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
 }
 
 function collectCalendarState() {
