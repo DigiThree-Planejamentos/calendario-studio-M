@@ -1520,8 +1520,7 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
 <script>
 /* =========================================================
    SUPABASE SAVE SYSTEM - STUDIO M
-   Versão definitiva: salva no Supabase, carrega em outro navegador,
-   preserva DOM, campos, header, stats e não chama renderAll após carregar.
+   VERSÃO BLINDADA
 ========================================================= */
 (function(){
   const SUPABASE_URL = 'https://aprneolltdkizvfakuus.supabase.co';
@@ -1530,10 +1529,15 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
   const CALENDAR_ID = 'studio-m-2026';
   const CALENDAR_NAME = 'Studio M Beauty Concept';
 
-  const supabaseClient =
-    window.supabase && typeof window.supabase.createClient === 'function'
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
+  let supabaseClient = null;
+
+  function initSupabase(){
+    if(window.supabase && typeof window.supabase.createClient === 'function'){
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return true;
+    }
+    return false;
+  }
 
   function getFieldValues(){
     const values = {};
@@ -1566,8 +1570,9 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
   }
 
   function getSiteData(){
+    const months = document.getElementById('monthsContainer');
     return {
-      html: document.getElementById('monthsContainer')?.innerHTML || '',
+      html: months ? months.innerHTML : '',
       fields: getFieldValues(),
       header: {
         client: document.getElementById('hdrClient')?.innerText || '',
@@ -1632,8 +1637,7 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
       try{ updateStats(); }catch(e){ console.warn(e); }
     }
 
-    // Não chamar renderAll() aqui, porque ele reconstrói o calendário original
-    // e apaga o HTML salvo vindo do Supabase.
+    // Não chamar renderAll() aqui.
     if(typeof bindEvents === 'function'){
       try{ bindEvents(); }catch(e){ console.warn(e); }
     }
@@ -1671,33 +1675,39 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
     }
 
     if(!supabaseClient){
+      initSupabase();
+    }
+
+    if(!supabaseClient){
       if(btn){
         btn.innerText = oldText || '🌐 Salvar no site';
         btn.disabled = false;
       }
-      alert('Salvo apenas no navegador. O Supabase não carregou.');
+      alert('Supabase não carregou. Verifique internet/CDN.');
       return;
     }
 
     try{
-      const { error } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from('calendarios')
         .upsert({
           id: CALENDAR_ID,
           nome: CALENDAR_NAME,
           dados: payload
-        }, { onConflict: 'id' });
+        }, { onConflict: 'id' })
+        .select();
 
       if(error){
         console.error('Erro Supabase:', error);
-        alert('Erro ao salvar no Supabase: ' + (error.message || 'verifique a tabela/RLS'));
+        alert('Erro ao salvar no Supabase: ' + (error.message || JSON.stringify(error)));
         return;
       }
 
-      alert('Salvo no site!');
+      console.log('Salvo no Supabase:', data);
+      alert('Salvo no site! ID: ' + CALENDAR_ID);
     }catch(e){
       console.error('Erro inesperado:', e);
-      alert('Erro inesperado ao salvar no site.');
+      alert('Erro inesperado ao salvar: ' + (e.message || e));
     }finally{
       if(btn){
         btn.innerText = oldText || '🌐 Salvar no site';
@@ -1707,6 +1717,10 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
   }
 
   async function loadSiteData(){
+    if(!supabaseClient){
+      initSupabase();
+    }
+
     if(supabaseClient){
       try{
         const { data, error } = await supabaseClient
@@ -1744,11 +1758,13 @@ document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
   window.loadSiteData = loadSiteData;
 
   document.addEventListener('DOMContentLoaded', function(){
+    initSupabase();
     setTimeout(loadSiteData, 250);
     setTimeout(loadSiteData, 1000);
   });
 
   window.addEventListener('load', function(){
+    initSupabase();
     setTimeout(loadSiteData, 350);
   });
 })();
