@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="pt-BR"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -216,6 +215,7 @@
 
   @media print{.toolbar,.add-post-btn,.card-actions,.add-thumb-btn{display:none!important;}body{background:#fff;}.post-card{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -239,17 +239,16 @@
 <div class="toolbar">
   <span class="toolbar-label">Ações:</span>
   <button class="btn btn-cyan" onclick="window.print()">🖨 Imprimir</button>
-  <button class="btn btn-ghost" onclick="salvarAlteracoes()">💾 Salvar alterações</button>
-  <button class="btn btn-ghost" onclick="resetGithubToken()">🔐 Token GitHub</button>
-  <button class="btn btn-ghost" onclick="exportHTML()">📥 Salvar HTML</button>
+  <button class="btn btn-ghost" onclick="exportHTML()">💾 Salvar HTML</button>
+  <button class="btn btn-cyan" onclick="saveSiteData()">🌐 Salvar no site</button>
   <button class="btn btn-ghost" id="editModeBtn" onclick="toggleEditMode()">✏️ Modo Edição</button>
   <button class="btn btn-ghost" onclick="openDatasModal()">🗓 Datas Comemorativas</button>
-  <div class="month-nav" id="monthNav"><button class="month-btn active" id="mnav0">Jan</button><button class="month-btn" id="mnav1">Fev</button><button class="month-btn" id="mnav2">Mar</button><button class="month-btn" id="mnav3">Abr</button><button class="month-btn" id="mnav4">Mai</button><button class="month-btn" id="mnav5">Jun</button><button class="month-btn" id="mnav6">Jul</button><button class="month-btn" id="mnav7">Ago</button><button class="month-btn" id="mnav8">Set</button><button class="month-btn" id="mnav9">Out</button><button class="month-btn" id="mnav10">Nov</button><button class="month-btn" id="mnav11">Dez</button></div>
+  <div class="month-nav" id="monthNav"><button class="month-btn" id="mnav0">Jan</button><button class="month-btn" id="mnav1">Fev</button><button class="month-btn" id="mnav2">Mar</button><button class="month-btn active" id="mnav3">Abr</button><button class="month-btn" id="mnav4">Mai</button><button class="month-btn" id="mnav5">Jun</button><button class="month-btn" id="mnav6">Jul</button><button class="month-btn" id="mnav7">Ago</button><button class="month-btn" id="mnav8">Set</button><button class="month-btn" id="mnav9">Out</button><button class="month-btn" id="mnav10">Nov</button><button class="month-btn" id="mnav11">Dez</button></div>
 </div>
 
 <div class="stats-bar">
-  <div class="stat-pill"><div class="num" style="color:var(--navy)" id="statTotal">21</div><div class="lbl">Total Posts</div></div>
-  <div class="stat-pill"><div class="num" style="color:var(--arte)" id="statArte">2</div><div class="lbl">Artes</div></div>
+  <div class="stat-pill"><div class="num" style="color:var(--navy)" id="statTotal">20</div><div class="lbl">Total Posts</div></div>
+  <div class="stat-pill"><div class="num" style="color:var(--arte)" id="statArte">1</div><div class="lbl">Artes</div></div>
   <div class="stat-pill"><div class="num" style="color:var(--foto)" id="statFoto">0</div><div class="lbl">Fotos</div></div>
   <div class="stat-pill"><div class="num" style="color:var(--story)" id="statStory">7</div><div class="lbl">Stories</div></div>
   <div class="stat-pill"><div class="num" style="color:var(--reels)" id="statReels">5</div><div class="lbl">Reels</div></div>
@@ -291,19 +290,7 @@
         <textarea class="plan-input" style="min-height:48px;resize:vertical" placeholder="Anotações livres, pendências, decisões, reuniões, contatos…" onchange="savePlanField(1,'observacoes',this.value)"></textarea>
       </div>
     </div>
-  </div><div class="cal-grid-outer"><div class="cal-dow"><div class="cal-dow-cell wknd">Dom</div><div class="cal-dow-cell">Seg</div><div class="cal-dow-cell">Ter</div><div class="cal-dow-cell">Qua</div><div class="cal-dow-cell">Qui</div><div class="cal-dow-cell">Sex</div><div class="cal-dow-cell wknd">Sáb</div></div><div class="cal-weeks"><div class="cal-week"><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day" data-day="1"><div class="day-num">1</div><div class="special-label">🎆 Ano Novo</div><button class="add-post-btn" onclick="openModal(0,1,true)">＋ post</button></div><div class="cal-day" data-day="2"><div class="day-num">2</div><button class="add-post-btn" onclick="openModal(0,2,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="3"><div class="day-num">3</div><button class="add-post-btn" onclick="openModal(0,3,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="4"><div class="day-num">4</div>
-            <div class="post-card arte" onclick="openModal(0,4)">
-              <div class="card-actions">
-                <button class="card-btn" onclick="event.stopPropagation();togglePostado(0,4)" title="Toggle postado">✅</button>
-                <button class="card-btn" onclick="event.stopPropagation();openModal(0,4)">✏️</button>
-                <button class="card-btn" onclick="event.stopPropagation();deletePostByKey(0,4)">🗑</button>
-              </div>
-              <div class="post-type-tag">🎨 Arte</div>
-              
-              <div class="post-title" contenteditable="true" spellcheck="false" onclick="event.stopPropagation()" onblur="updateTitle(0,4,this.innerText)">teste</div>
-              
-              <div class="card-gallery"><button class="add-thumb-btn" onclick="event.stopPropagation();triggerCardImg(0,4)" title="Adicionar foto">＋</button></div>
-            </div></div><div class="cal-day" data-day="5"><div class="day-num">5</div><button class="add-post-btn" onclick="openModal(0,5,true)">＋ post</button></div><div class="cal-day" data-day="6"><div class="day-num">6</div><div class="special-label">🏖️ Feriado RJ</div><button class="add-post-btn" onclick="openModal(0,6,true)">＋ post</button></div><div class="cal-day" data-day="7"><div class="day-num">7</div><button class="add-post-btn" onclick="openModal(0,7,true)">＋ post</button></div><div class="cal-day" data-day="8"><div class="day-num">8</div><button class="add-post-btn" onclick="openModal(0,8,true)">＋ post</button></div><div class="cal-day" data-day="9"><div class="day-num">9</div><button class="add-post-btn" onclick="openModal(0,9,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="10"><div class="day-num">10</div><button class="add-post-btn" onclick="openModal(0,10,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="11"><div class="day-num">11</div><button class="add-post-btn" onclick="openModal(0,11,true)">＋ post</button></div><div class="cal-day" data-day="12"><div class="day-num">12</div><button class="add-post-btn" onclick="openModal(0,12,true)">＋ post</button></div><div class="cal-day" data-day="13"><div class="day-num">13</div><button class="add-post-btn" onclick="openModal(0,13,true)">＋ post</button></div><div class="cal-day" data-day="14"><div class="day-num">14</div><button class="add-post-btn" onclick="openModal(0,14,true)">＋ post</button></div><div class="cal-day" data-day="15"><div class="day-num">15</div><button class="add-post-btn" onclick="openModal(0,15,true)">＋ post</button></div><div class="cal-day" data-day="16"><div class="day-num">16</div><button class="add-post-btn" onclick="openModal(0,16,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="17"><div class="day-num">17</div><button class="add-post-btn" onclick="openModal(0,17,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="18"><div class="day-num">18</div><button class="add-post-btn" onclick="openModal(0,18,true)">＋ post</button></div><div class="cal-day" data-day="19"><div class="day-num">19</div><button class="add-post-btn" onclick="openModal(0,19,true)">＋ post</button></div><div class="cal-day" data-day="20"><div class="day-num">20</div><button class="add-post-btn" onclick="openModal(0,20,true)">＋ post</button></div><div class="cal-day" data-day="21"><div class="day-num">21</div><button class="add-post-btn" onclick="openModal(0,21,true)">＋ post</button></div><div class="cal-day" data-day="22"><div class="day-num">22</div><button class="add-post-btn" onclick="openModal(0,22,true)">＋ post</button></div><div class="cal-day" data-day="23"><div class="day-num">23</div><button class="add-post-btn" onclick="openModal(0,23,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="24"><div class="day-num">24</div><button class="add-post-btn" onclick="openModal(0,24,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="25"><div class="day-num">25</div><button class="add-post-btn" onclick="openModal(0,25,true)">＋ post</button></div><div class="cal-day" data-day="26"><div class="day-num">26</div><button class="add-post-btn" onclick="openModal(0,26,true)">＋ post</button></div><div class="cal-day" data-day="27"><div class="day-num">27</div><button class="add-post-btn" onclick="openModal(0,27,true)">＋ post</button></div><div class="cal-day" data-day="28"><div class="day-num">28</div><button class="add-post-btn" onclick="openModal(0,28,true)">＋ post</button></div><div class="cal-day" data-day="29"><div class="day-num">29</div><button class="add-post-btn" onclick="openModal(0,29,true)">＋ post</button></div><div class="cal-day" data-day="30"><div class="day-num">30</div><button class="add-post-btn" onclick="openModal(0,30,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="31"><div class="day-num">31</div><button class="add-post-btn" onclick="openModal(0,31,true)">＋ post</button></div></div></div></div></div><div class="month-block" id="month-1"><div class="month-header"><div class="month-title">Fevereiro <em>2026</em></div><div class="month-badge">Mês 2</div></div><div class="month-notes" contenteditable="true" data-month="2" placeholder="Descreva a campanha do mês, promoções, objetivos, datas importantes…"></div><div class="plan-panel">
+  </div><div class="cal-grid-outer"><div class="cal-dow"><div class="cal-dow-cell wknd">Dom</div><div class="cal-dow-cell">Seg</div><div class="cal-dow-cell">Ter</div><div class="cal-dow-cell">Qua</div><div class="cal-dow-cell">Qui</div><div class="cal-dow-cell">Sex</div><div class="cal-dow-cell wknd">Sáb</div></div><div class="cal-weeks"><div class="cal-week"><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day" data-day="1"><div class="day-num">1</div><div class="special-label">🎆 Ano Novo</div><button class="add-post-btn" onclick="openModal(0,1,true)">＋ post</button></div><div class="cal-day" data-day="2"><div class="day-num">2</div><button class="add-post-btn" onclick="openModal(0,2,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="3"><div class="day-num">3</div><button class="add-post-btn" onclick="openModal(0,3,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="4"><div class="day-num">4</div><button class="add-post-btn" onclick="openModal(0,4,true)">＋ post</button></div><div class="cal-day" data-day="5"><div class="day-num">5</div><button class="add-post-btn" onclick="openModal(0,5,true)">＋ post</button></div><div class="cal-day" data-day="6"><div class="day-num">6</div><div class="special-label">🏖️ Feriado RJ</div><button class="add-post-btn" onclick="openModal(0,6,true)">＋ post</button></div><div class="cal-day" data-day="7"><div class="day-num">7</div><button class="add-post-btn" onclick="openModal(0,7,true)">＋ post</button></div><div class="cal-day" data-day="8"><div class="day-num">8</div><button class="add-post-btn" onclick="openModal(0,8,true)">＋ post</button></div><div class="cal-day" data-day="9"><div class="day-num">9</div><button class="add-post-btn" onclick="openModal(0,9,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="10"><div class="day-num">10</div><button class="add-post-btn" onclick="openModal(0,10,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="11"><div class="day-num">11</div><button class="add-post-btn" onclick="openModal(0,11,true)">＋ post</button></div><div class="cal-day" data-day="12"><div class="day-num">12</div><button class="add-post-btn" onclick="openModal(0,12,true)">＋ post</button></div><div class="cal-day" data-day="13"><div class="day-num">13</div><button class="add-post-btn" onclick="openModal(0,13,true)">＋ post</button></div><div class="cal-day" data-day="14"><div class="day-num">14</div><button class="add-post-btn" onclick="openModal(0,14,true)">＋ post</button></div><div class="cal-day" data-day="15"><div class="day-num">15</div><button class="add-post-btn" onclick="openModal(0,15,true)">＋ post</button></div><div class="cal-day" data-day="16"><div class="day-num">16</div><button class="add-post-btn" onclick="openModal(0,16,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="17"><div class="day-num">17</div><button class="add-post-btn" onclick="openModal(0,17,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="18"><div class="day-num">18</div><button class="add-post-btn" onclick="openModal(0,18,true)">＋ post</button></div><div class="cal-day" data-day="19"><div class="day-num">19</div><button class="add-post-btn" onclick="openModal(0,19,true)">＋ post</button></div><div class="cal-day" data-day="20"><div class="day-num">20</div><button class="add-post-btn" onclick="openModal(0,20,true)">＋ post</button></div><div class="cal-day" data-day="21"><div class="day-num">21</div><button class="add-post-btn" onclick="openModal(0,21,true)">＋ post</button></div><div class="cal-day" data-day="22"><div class="day-num">22</div><button class="add-post-btn" onclick="openModal(0,22,true)">＋ post</button></div><div class="cal-day" data-day="23"><div class="day-num">23</div><button class="add-post-btn" onclick="openModal(0,23,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="24"><div class="day-num">24</div><button class="add-post-btn" onclick="openModal(0,24,true)">＋ post</button></div></div><div class="cal-week"><div class="cal-day wknd-col" data-day="25"><div class="day-num">25</div><button class="add-post-btn" onclick="openModal(0,25,true)">＋ post</button></div><div class="cal-day" data-day="26"><div class="day-num">26</div><button class="add-post-btn" onclick="openModal(0,26,true)">＋ post</button></div><div class="cal-day" data-day="27"><div class="day-num">27</div><button class="add-post-btn" onclick="openModal(0,27,true)">＋ post</button></div><div class="cal-day" data-day="28"><div class="day-num">28</div><button class="add-post-btn" onclick="openModal(0,28,true)">＋ post</button></div><div class="cal-day" data-day="29"><div class="day-num">29</div><button class="add-post-btn" onclick="openModal(0,29,true)">＋ post</button></div><div class="cal-day" data-day="30"><div class="day-num">30</div><button class="add-post-btn" onclick="openModal(0,30,true)">＋ post</button></div><div class="cal-day wknd-col" data-day="31"><div class="day-num">31</div><button class="add-post-btn" onclick="openModal(0,31,true)">＋ post</button></div></div></div></div></div><div class="month-block" id="month-1"><div class="month-header"><div class="month-title">Fevereiro <em>2026</em></div><div class="month-badge">Mês 2</div></div><div class="month-notes" contenteditable="true" data-month="2" placeholder="Descreva a campanha do mês, promoções, objetivos, datas importantes…"></div><div class="plan-panel">
     <div class="plan-header-row">
       <span class="plan-icon">📋</span>
       <span>Planejamento do Mês</span>
@@ -377,29 +364,29 @@
     <div class="plan-grid">
       <div class="plan-cell">
         <div class="plan-label"><span>🎯</span> Objetivos de Campanha</div>
-        <textarea class="plan-input tall" placeholder="Ex: Aumentar leads, lançar promoção, gerar awareness…" onchange="savePlanField(4,'objetivos',this.value)">Aquecimento para o mês das mães no inicio de Maio.</textarea>
+        <textarea class="plan-input tall" placeholder="Ex: Aumentar leads, lançar promoção, gerar awareness…" onchange="savePlanField(4,'objetivos',this.value)"></textarea>
       </div>
       <div class="plan-cell">
         <div class="plan-label"><span>💰</span> Investimento em Mídia</div>
-        <textarea class="plan-input tall" placeholder="Ex: R$ 1.000 — Meta Ads + Google Ads…" onchange="savePlanField(4,'investimento',this.value)">nenhum.</textarea>
+        <textarea class="plan-input tall" placeholder="Ex: R$ 1.000 — Meta Ads + Google Ads…" onchange="savePlanField(4,'investimento',this.value)"></textarea>
       </div>
       <div class="plan-cell">
         <div class="plan-label"><span>💸</span> Tráfego Pago</div>
-        <textarea class="plan-input tall" placeholder="Ex: R$ 600 Meta Ads (feed + stories), R$ 400 Google. Públicos, segmentações…" onchange="savePlanField(4,'trafego',this.value)">nenhum.</textarea>
+        <textarea class="plan-input tall" placeholder="Ex: R$ 600 Meta Ads (feed + stories), R$ 400 Google. Públicos, segmentações…" onchange="savePlanField(4,'trafego',this.value)"></textarea>
       </div>
       <div class="plan-cell">
         <div class="plan-label"><span>🌟</span> Influenciadores</div>
-        <textarea class="plan-input tall" placeholder="Ex: @perfil — tipo de conteúdo, formato, prazo…" onchange="savePlanField(4,'influenciadores',this.value)">Apenas oportunidades de permuta.</textarea>
+        <textarea class="plan-input tall" placeholder="Ex: @perfil — tipo de conteúdo, formato, prazo…" onchange="savePlanField(4,'influenciadores',this.value)"></textarea>
       </div>
       <div class="plan-cell" style="border-right:none">
         <div class="plan-label"><span>👤</span> Persona do Mês</div>
-        <textarea class="plan-input tall" placeholder="Ex: Público-alvo, faixa etária, dores, plataformas que usa…" onchange="savePlanField(4,'persona',this.value)">Angrenses em busca de renovação, mulheres empresárias 30+.</textarea>
+        <textarea class="plan-input tall" placeholder="Ex: Público-alvo, faixa etária, dores, plataformas que usa…" onchange="savePlanField(4,'persona',this.value)"></textarea>
       </div>
     </div>
     <div class="plan-grid-bottom">
       <div class="plan-cell-full">
         <div class="plan-label"><span>📝</span> Observações Gerais</div>
-        <textarea class="plan-input" style="min-height:48px;resize:vertical" placeholder="Anotações livres, pendências, decisões, reuniões, contatos…" onchange="savePlanField(4,'observacoes',this.value)">Começar a juntar o material junto ao do Marco Lorenzo.</textarea>
+        <textarea class="plan-input" style="min-height:48px;resize:vertical" placeholder="Anotações livres, pendências, decisões, reuniões, contatos…" onchange="savePlanField(4,'observacoes',this.value)"></textarea>
       </div>
     </div>
   </div><div class="cal-grid-outer"><div class="cal-dow"><div class="cal-dow-cell wknd">Dom</div><div class="cal-dow-cell">Seg</div><div class="cal-dow-cell">Ter</div><div class="cal-dow-cell">Qua</div><div class="cal-dow-cell">Qui</div><div class="cal-dow-cell">Sex</div><div class="cal-dow-cell wknd">Sáb</div></div><div class="cal-weeks"><div class="cal-week"><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day empty"><div class="day-num"></div></div><div class="cal-day" data-day="1"><div class="day-num">1</div><div class="special-label">🤥 Dia da Mentira</div>
@@ -912,14 +899,14 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <h3>Editar Post · <span id="modalDateLabel">4/1/2026</span></h3>
+      <h3>Editar Post · <span id="modalDateLabel"></span></h3>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
         <label>Tipo de Conteúdo</label>
         <div class="type-grid">
-          <div class="type-opt selected" data-type="arte" onclick="selectType('arte')">🎨 Arte</div>
+          <div class="type-opt" data-type="arte" onclick="selectType('arte')">🎨 Arte</div>
           <div class="type-opt" data-type="foto" onclick="selectType('foto')">📸 Foto</div>
           <div class="type-opt" data-type="story" onclick="selectType('story')">📱 Story</div>
           <div class="type-opt" data-type="reels" onclick="selectType('reels')">🎬 Reels</div>
@@ -930,7 +917,7 @@
         <label>Título / Frase da Postagem</label>
         <input type="text" id="modalPostTitle" placeholder="Ex: Nem todo dia precisa ser correria">
       </div>
-      <div class="form-group" id="fieldImgObs" style="">
+      <div class="form-group" id="fieldImgObs" style="display:none">
         <label>Observações de Imagem / Vídeo</label>
         <textarea id="modalImgObs" placeholder="Descreva a imagem ideal, enquadramento, luz, referências…" style="min-height:120px"></textarea>
       </div>
@@ -947,13 +934,14 @@ Slide 2: …" style="min-height:160px"></textarea>
         <label>Nº de Slides</label>
         <input type="text" id="modalSlidesNum" placeholder="Ex: 7 slides">
       </div>
-      <div class="form-group" id="fieldCaption" style="">
+      <div class="form-group" id="fieldCaption">
         <label>Legenda completa</label>
         <textarea id="modalCaption" placeholder="Texto, hashtags, telefone…"></textarea>
       </div>
       <div class="form-group">
         <div class="mgal-label">Imagens / Fotos <span class="mgal-hint">— arraste ou clique em ＋</span></div>
-        <div class="modal-gallery" id="modalGallery" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)"><button class="mgal-add" type="button"><span style="font-size:22px">＋</span><span class="lbl">foto</span></button></div>
+        <div class="modal-gallery" id="modalGallery" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+        </div>
       </div>
       <div class="form-group" id="fieldVideoLink" style="display:none">
         <label>🎬 Link do Vídeo</label>
@@ -1027,7 +1015,7 @@ Slide 2: …" style="min-height:160px"></textarea>
   </div>
 </div>
 
-<div class="toast show" id="toast">☁️ Salvando no GitHub...</div>
+<div class="toast" id="toast"></div>
 
 <script>
 // ─────────────────────────────────────────────
@@ -1091,7 +1079,6 @@ function updateStats(){
 // ── Build Month Nav ──
 function buildMonthNav(){
   const nav=document.getElementById('monthNav');
-  nav.innerHTML='';
   MONTHS_CONFIG.forEach((mc,i)=>{
     const btn=document.createElement('button');
     btn.className='month-btn';
@@ -1480,265 +1467,22 @@ function saveDatas(){
 document.getElementById('datasMonthSel').addEventListener('change', renderDatasList);
 document.getElementById('datasOverlay').addEventListener('click', e=>{if(e.target===e.currentTarget)closeDatasModal();});
 
-
-
-const GITHUB_CONFIG = {
-  owner: "DigiThree-Planejamentos",
-  repo: "calendario-studio-M",
-  path: "index.html",
-  branch: "main"
-};
-
-const GITHUB_TOKEN_KEY = 'github_token';
-const PERSIST_START = '<!-- PERSISTED_CALENDAR_STATE_START -->
-<script>window.__PERSISTED_CALENDAR_STATE__ = {"header":{"client":"Studio M Beauty Concept","year":"2026","sub":"CALENDÁRIO EDITORIAL — ABRIL 2026 ✨ @STUDIOM.OFICIAL"},"posts":[{"month":4,"day":1,"type":"story","title":"Dia da Mentira","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Story divertido brincando com a frase clássica dos salões. Conteúdo leve e identificável pra quem já frequentou salão de beleza.","imgObs":"Formato: Story. Estilo: fundo com textura ou foto de salão, tipografia descontraída. Tom: leve, bem-humorado. Mensagem central: no Studio M o atendimento é feito com conversa e respeito ao que foi combinado.\n\nTexto da arte:\nAPROVEITANDO QUE É DIA DA MENTIRA…\n✂️ \"Vou cortar só as pontinhas.\"\nNo Studio M é diferente.\nCada corte é feito com diálogo, cuidado\ne respeito ao que foi combinado.","caption":""},{"month":4,"day":3,"type":"carrossel","title":"Chamada 1: cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"3-5","roteiro":"","descricao":"Fotos de cabelo destacando brilho, movimento e finalização.","imgObs":"Formato: Carrossel (3 a 5 fotos). Estilo: fotos de resultado com boa iluminação, fundo neutro ou do salão. Tom: aspiracional, clean. Mensagem central: a sensação de sair do salão com o cabelo transformado.","caption":"Sabe aquele momento\nem que você passa a mão no cabelo\ne já sente a diferença?\n\nBrilho, movimento, leveza.\n\nÉ isso que a gente entrega\nem cada atendimento. ✨\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":4,"type":"story","title":"Horário de funcionamento","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Story informativo mostrando os horários de funcionamento do salão durante abril.","imgObs":"Formato: Story. Estilo: clean, identidade visual do Studio M. Tom: informativo. Mensagem central: facilitar agendamentos e reforçar horários.","caption":""},{"month":4,"day":5,"type":"story","title":"Feliz Páscoa 🐣","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Story comemorativo desejando Feliz Páscoa aos seguidores.","imgObs":"Formato: Story. Estilo: clean, tons pastéis ou dourados, elementos sutis de Páscoa (sem excesso de ovos/coelhos). Tom: afetuoso e elegante. Mensagem central: presença da marca em data afetiva.\n\nTexto da arte:\nFeliz Páscoa! 🐣\nQue esse dia seja leve,\ndoce e cheio de amor.\n💛 Studio M Beauty Concept","caption":""},{"month":4,"day":6,"type":"carrossel","title":"Chamada 2: cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"3-5","roteiro":"","descricao":"Fotos de cabelo destacando iluminação e movimento.","imgObs":"Formato: Carrossel (3 a 5 fotos). Estilo: fotos de resultado com iluminação natural ou ring light, fundo do salão. Tom: técnico e acolhedor. Mensagem central: o processo importa tanto quanto o resultado.","caption":"O resultado que você vê aqui\nnão começa no espelho.\n\nComeça na conversa.\nNo diagnóstico.\nNo cuidado com cada mecha.\n\nE quando tudo isso se junta,\no cabelo fala por si. 💛\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":8,"type":"reels","title":"Dia do Combate ao Câncer","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Reels educativo com fala ou narração sobre doação de cabelo e conscientização.","imgObs":"Formato: Reels. Estilo: tom sóbrio, imagens de processo de corte/doação, narração em off ou fala direta. Tom: sensível, educativo, respeitoso. Mensagem central: doação de cabelo como gesto de apoio e esperança.","caption":"Hoje, no Dia Mundial de Combate ao Câncer, vale lembrar o significado dessa data. Ela foi criada pela Organização Mundial da Saúde (OMS) para que instituições ao redor do mundo se unam na conscientização e na prevenção dos diferentes tipos de câncer. E uma das consequências mais marcantes do tratamento é a queda de cabelo. Por isso, muitas pessoas escolhem doar seus cabelos. Esses fios passam por um processo de preparação e são utilizados na produção de perucas para pessoas em tratamento. Mais do que cabelo, essa doação representa apoio, autoestima e esperança para quem está enfrentando esse momento. Porque às vezes, um corte de cabelo pode significar um recomeço para alguém."},{"month":4,"day":10,"type":"carrossel","title":"Chamada 3: cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"3-5","roteiro":"","descricao":"Fotos de resultado capilar mostrando brilho e movimento.","imgObs":"Formato: Carrossel (3 a 5 fotos). Estilo: resultado final, iluminação que valorize os fios. Tom: empoderador. Mensagem central: autoestima e confiança que vêm de um cabelo bem cuidado.","caption":"Tem coisa melhor do que\nolhar no espelho e gostar do que vê?\n\nUm cabelo bem cuidado muda o dia.\nMuda o humor.\nMuda até o jeito de andar. 😌\n\nIsso aqui é mais do que estética.\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":13,"type":"reels","title":"Cada momento merece um cabelo à altura","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"https://www.instagram.com/reels/DUVghKJiG6g/","slides":"","slidesNum":"","descricao":"Mostrar que o cabelo acompanha momentos importantes da vida.","imgObs":"Formato: Reels. Estilo: transições rápidas, cada frase com corte diferente, trilha emocional. Tom: inspirador e envolvente. Mensagem central: o cabelo faz parte dos momentos que marcam.","roteiro":"Frases para o vídeo:\n\"Hoje é o meu aniversário.\"\n\"Estou indo para um date.\"\n\"Amanhã é a minha formatura.\"\n\"Vou me casar.\"\n\"Hoje é a minha entrevista de emprego.\"\n\"Vou viajar.\"\n\"Tenho uma apresentação importante.\"","caption":"Existem momentos que ficam para sempre na memória.\n\nUm aniversário.\nUm encontro especial.\nUma viagem.\nUma conquista.\n\nE em todos eles, se sentir bem faz toda diferença.\n\nPorque cada momento importante merece um cabelo à altura. ✨\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":14,"type":"story","title":"Dia Mundial do Café ☕","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Story leve conectando o café à experiência do salão.","imgObs":"Formato: Story. Estilo: foto de xícara no ambiente do salão, tom aconchegante. Tom: leve, acolhedor. Mensagem central: o café como parte da experiência Studio M.\n\nTexto da arte:\n☕ Hoje é Dia Mundial do Café\nE aqui no Studio M ele também faz parte do cuidado. 💛\nEntre um atendimento e outro, nada melhor do que um café para deixar o momento ainda mais especial.","caption":""},{"month":4,"day":15,"type":"carrossel","title":"Chamada 4: cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"3-5","roteiro":"","descricao":"Fotos de resultado capilar com foco em cor, tom e brilho. Destacar harmonia entre a coloração e o tom de pele da cliente.","imgObs":"Formato: Carrossel (3 a 5 fotos). Estilo: fotos de resultado com boa iluminação, fundo neutro ou do salão. Tom: sofisticado. Mensagem central: encontrar o tom certo para cada pessoa.","caption":"O tom certo muda tudo.\n\nNão é sobre seguir tendência.\nÉ sobre encontrar a cor\nque combina com você.\n\nCom a sua pele.\nCom o seu estilo.\nCom a sua rotina.\n\nEsse é o nosso trabalho. ✨\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":17,"type":"reels","title":"Transformação com influencer","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"https://www.instagram.com/reels/DVV-YuFkXZY/","slides":"","slidesNum":"","roteiro":"","descricao":"Reels de transformação capilar feita em parceria com influencer.","imgObs":"Formato: Reels. Estilo: antes/depois, bastidores do processo, trilha envolvente. Tom: dinâmico, bastidor. Mensagem central: transformação real com conversa e planejamento.","caption":"Do \"quero mudar\" ao \"amei\". 😍\n\nFoi isso que rolou nesse dia.\n\nConversa, planejamento\ne muita mão na massa\naté chegar no resultado final.\n\nDesliza pra ver como ficou. ✨\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":18,"type":"story","title":"Horário de funcionamento","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Reforço dos horários do Studio M durante abril.","imgObs":"Formato: Story. Estilo: clean, identidade visual do Studio M. Tom: informativo. Mensagem central: facilitar agendamentos.","caption":""},{"month":4,"day":20,"type":"carrossel","title":"Chamada 5: cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"3-5","roteiro":"","descricao":"Resultado capilar com destaque para brilho e textura.","imgObs":"Formato: Carrossel (3 a 5 fotos). Estilo: fotos de resultado, close nos fios e plano médio. Tom: pessoal, humanizado. Mensagem central: cada cliente traz um desejo diferente e a gente transforma em resultado.","caption":"Cada cliente que senta nessa cadeira\ntraz uma história diferente.\n\nUm desejo.\nUma inspiração.\nUma vontade de mudança.\n\nE a gente transforma isso\nem resultado. ✨\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":21,"type":"story","title":"Horário — Feriado Tiradentes","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Story informando se o salão funcionará no feriado de Tiradentes e em qual horário.","imgObs":"Formato: Story. Estilo: informativo, visual limpo. Tom: direto. Mensagem central: informar funcionamento no feriado.\n⚠️ Confirmar com a cliente se abre ou fecha.\n\nTexto da arte:\n📌 Feriado de Tiradentes\nConfira nosso horário de funcionamento:\n[inserir horário ou informar se estará fechado]\n💛 Studio M","caption":""},{"month":4,"day":22,"type":"reels","title":"Transformação com cliente","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"https://www.instagram.com/p/DQnPIt8geA8/","slides":"","slidesNum":"","roteiro":"","descricao":"Reels mostrando transformação real de uma cliente do salão.","imgObs":"Formato: Reels. Estilo: antes/depois real, filmagem espontânea, reação da cliente. Tom: emocional e verdadeiro. Mensagem central: transformação que vai além da aparência.","caption":"Ela chegou querendo se sentir diferente.\n\nNão era só sobre cor.\nNão era só sobre corte.\nEra sobre voltar a se reconhecer.\n\nE quando ela se viu no espelho…\nnão precisou dizer nada. 💛\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":23,"type":"story","title":"Horário — Feriado São Jorge","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Story informando o funcionamento do salão no feriado de São Jorge (feriado no RJ).","imgObs":"Formato: Story. Estilo: informativo, visual limpo. Tom: direto. Mensagem central: informar funcionamento no feriado.\n⚠️ Confirmar com a cliente se abre ou fecha.\n\nTexto da arte:\n📌 Dia de São Jorge\nConfira nosso horário de funcionamento:\n[inserir horário ou informar se estará fechado]\n💛 Studio M","caption":""},{"month":4,"day":24,"type":"carrossel","title":"Pequenos luxos além do cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"Texto dos slides mantido conforme original da cliente.","slidesNum":"","roteiro":"","descricao":"Carrossel mostrando a experiência completa do Studio M — café, conforto, ambiente, cuidado.","imgObs":"Formato: Carrossel. Estilo: fotos do ambiente, detalhes do salão, café, mimo pra cliente. Tom: sensorial, acolhedor. Mensagem central: o Studio M é um momento pra desacelerar.","caption":"Às vezes você não precisa de férias.\n\nPrecisa de um café quentinho,\numa cadeira confortável,\nalguém cuidando do seu cabelo\ne nenhuma pressa. ☕✨\n\nNo Studio M o cuidado vai\nalém dos fios.\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":27,"type":"arte","title":"Amanhã é Dia da Sogra","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"","roteiro":"","descricao":"Promover experiência especial para sogras e noras no salão.","imgObs":"Formato: Post feed (arte). Estilo: elegante, emocional, identidade visual do Studio M. Tom: convidativo. Mensagem central: presentear a sogra com um dia de cuidado.\n\nTexto da arte mantido conforme original da cliente.","caption":""},{"month":4,"day":28,"type":"reels","title":"Ação na rua — Dia da Sogra","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"https://www.tiktok.com/@evertonmuller_/video/7435632970637004088","slides":"","slidesNum":"","roteiro":"","descricao":"Ir ao centro de Angra dos Reis e convidar alguém para levar a sogra a um dia de spa no Studio M. Captar reações espontâneas.","imgObs":"Formato: Reels. Estilo: ação de rua, câmera na mão, reações reais. Tom: divertido, espontâneo. Mensagem central: um convite simples pode virar um momento especial.","caption":"A missão: ir pro Centro de Angra\ne achar alguém pra levar a sogra\nnum dia de beleza. 😄\n\nAs reações? Impagáveis.\n\nMarca aqui a sogra que merece\num dia desses. 👇💛\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":4,"day":29,"type":"carrossel","title":"Chamada 6: cabelo","pending":false,"trafego":false,"postado":false,"imgs":[],"videoLink":"","slides":"","slidesNum":"3-5","roteiro":"","descricao":"Fotos de resultado capilar fechando o mês de abril. Foco em saúde dos fios, finalização e movimento.","imgObs":"Formato: Carrossel (3 a 5 fotos). Estilo: fotos de resultado com iluminação natural, fundo neutro ou do salão. Tom: celebratório, fechamento de mês. Mensagem central: encerrar abril com chave de ouro.","caption":"Abril tá acabando\ne a gente fecha o mês assim. 👀✨\n\nCabelo saudável.\nFinalização impecável.\nCliente feliz.\n\nMaio, pode vir. 💛\n\n📲 Agende seu horário\n📍 Rua Coronel Carvalho, nº 517 – Edifício Aurora\n📲 WhatsApp: (24) 99957-5458"},{"month":1,"day":4,"type":"arte","title":"teste","caption":"","imgObs":"","roteiro":"","videoLink":"","slides":"","slidesNum":"","pending":false,"postado":false,"trafego":false,"imgs":[]}],"planData":{"1":{},"2":{},"3":{},"4":{"objetivos":"Aquecimento para o mês das mães no inicio de Maio.","investimento":"nenhum.","trafego":"nenhum.","influenciadores":"Apenas oportunidades de permuta.","persona":"Angrenses em busca de renovação, mulheres empresárias 30+.","observacoes":"Começar a juntar o material junto ao do Marco Lorenzo."},"5":{},"6":{},"7":{},"8":{},"9":{},"10":{},"11":{},"12":{}},"monthsConfig":[{"year":2026,"month":1,"firstDow":4,"days":31,"notes":"","special":{"1":"🎆 Ano Novo","6":"🏖️ Feriado RJ"}},{"year":2026,"month":2,"firstDow":0,"days":28,"notes":"","special":{"16":"🎭 Carnaval","17":"🎭 Carnaval","18":"🎭 Quarta-feira de Cinzas"}},{"year":2026,"month":3,"firstDow":0,"days":31,"notes":"","special":{"8":"👩 Dia da Mulher","20":"🌿 Início do Outono"}},{"year":2026,"month":4,"firstDow":3,"days":30,"notes":"Studio M Beauty Concept — 20 publicações planejadas | 6 Carrosséis · 5 Reels · 1 Arte · 8 Stories","special":{"1":"🤥 Dia da Mentira","2":"🧩 Consciência do Autismo","3":"✝️ Sexta-Feira Santa","5":"🐣 Páscoa","6":"🙏 São Benedito","7":"🌍 Dia Mundial da Saúde","8":"🎗️ Combate ao Câncer","13":"💋 Dia do Beijo","14":"☕ Dia Mundial do Café","21":"🇧🇷 Tiradentes","22":"🌍 Dia da Terra","23":"⚔️ São Jorge","24":"🥩 Dia Int. do Churrasco","28":"👵 Dia da Sogra","30":"🎷 Dia Int. do Jazz"}},{"year":2026,"month":5,"firstDow":5,"days":31,"notes":"","special":{"10":"💐 Dia das Mães","31":"🟡 Fim Maio Amarelo"}},{"year":2026,"month":6,"firstDow":1,"days":30,"notes":"","special":{"5":"🌍 Meio Ambiente","12":"💑 Dia dos Namorados"}},{"year":2026,"month":7,"firstDow":3,"days":31,"notes":"","special":{}},{"year":2026,"month":8,"firstDow":6,"days":31,"notes":"","special":{"9":"👨 Dia dos Pais"}},{"year":2026,"month":9,"firstDow":2,"days":30,"notes":"","special":{"7":"🇧🇷 Independência","15":"🛍️ Dia do Cliente","22":"🌸 Primavera"}},{"year":2026,"month":10,"firstDow":4,"days":31,"notes":"","special":{"2":"👶 Dia das Crianças","12":"🇧🇷 N.Sra. Aparecida","31":"🎃 Halloween"}},{"year":2026,"month":11,"firstDow":0,"days":30,"notes":"","special":{"2":"✝️ Finados","15":"🇧🇷 Proclamação Rep.","20":"⚫ Black Friday"}},{"year":2026,"month":12,"firstDow":2,"days":31,"notes":"","special":{"8":"🎄 Imaculada Conceição","25":"🎄 Natal","31":"🥂 Réveillon"}}],"monthNotes":{"1":"","2":"","3":"","4":"Studio M Beauty Concept — 20 publicações planejadas | 6 Carrosséis · 5 Reels · 1 Arte · 8 Stories","5":"","6":"","7":"","8":"","9":"","10":"","11":"","12":""},"currentMonthIdx":0,"editMode":true};</script>
-<!-- PERSISTED_CALENDAR_STATE_END -->';
-
-function getGithubConfig() {
-  return { ...GITHUB_CONFIG };
-}
-
-function getGithubToken(forceReset = false) {
-  if (forceReset) localStorage.removeItem(GITHUB_TOKEN_KEY);
-  let token = localStorage.getItem(GITHUB_TOKEN_KEY);
-  if (!token) {
-    token = window.prompt('Cole seu token do GitHub com permissão de Contents (Read and write):');
-    if (!token) return null;
-    token = token.trim();
-    if (!token) return null;
-    localStorage.setItem(GITHUB_TOKEN_KEY, token);
-  }
-  return token;
-}
-
-function resetGithubToken() {
-  localStorage.removeItem(GITHUB_TOKEN_KEY);
-  alert('Token do GitHub removido. Ao salvar novamente, ele será solicitado.');
-}
-
-function buildGithubHeaders(token, scheme) {
-  return {
-    Authorization: `${scheme} ${token}`,
-    Accept: 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28'
-  };
-}
-
-async function githubFetch(url, options = {}, token) {
-  const schemes = ['Bearer', 'token'];
-  let lastResp = null;
-
-  for (const scheme of schemes) {
-    const resp = await fetch(url, {
-      ...options,
-      headers: {
-        ...(options.headers || {}),
-        ...buildGithubHeaders(token, scheme)
-      }
-    });
-    lastResp = resp;
-    if (resp.ok) return resp;
-    if (resp.status !== 401 && resp.status !== 403) return resp;
-  }
-
-  return lastResp;
-}
-
-function encodeBase64Unicode(str) {
-  const bytes = new TextEncoder().encode(str);
-  const chunkSize = 0x8000;
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode.apply(null, chunk);
-  }
-  return btoa(binary);
-}
-
-function collectCalendarState() {
-  const monthNotes = {};
-  document.querySelectorAll('.month-notes[data-month]').forEach(el => {
-    monthNotes[String(el.dataset.month)] = el.innerHTML;
-  });
-
-  return {
-    header: {
-      client: document.getElementById('hdrClient')?.innerText || '',
-      year: document.getElementById('hdrYear')?.innerText || '',
-      sub: document.getElementById('hdrSub')?.innerText || ''
-    },
-    posts: JSON.parse(JSON.stringify(typeof POSTS !== 'undefined' ? POSTS : [])),
-    planData: JSON.parse(JSON.stringify(typeof PLAN_DATA !== 'undefined' ? PLAN_DATA : {})),
-    monthsConfig: JSON.parse(JSON.stringify(typeof MONTHS_CONFIG !== 'undefined' ? MONTHS_CONFIG : [])),
-    monthNotes,
-    currentMonthIdx: typeof currentMonthIdx === 'number' ? currentMonthIdx : 0,
-    editMode: !!_editMode
-  };
-}
-
-function applyPersistedCalendarState() {
-  const state = window.__PERSISTED_CALENDAR_STATE__;
-  if (!state || typeof state !== 'object') return;
-
-  if (state.header) {
-    const hdrClient = document.getElementById('hdrClient');
-    const hdrYear = document.getElementById('hdrYear');
-    const hdrSub = document.getElementById('hdrSub');
-    if (hdrClient && typeof state.header.client === 'string') hdrClient.innerText = state.header.client;
-    if (hdrYear && typeof state.header.year === 'string') hdrYear.innerText = state.header.year;
-    if (hdrSub && typeof state.header.sub === 'string') hdrSub.innerText = state.header.sub;
-  }
-
-  if (Array.isArray(state.posts) && typeof POSTS !== 'undefined') {
-    POSTS = JSON.parse(JSON.stringify(state.posts));
-  }
-
-  if (state.planData && typeof state.planData === 'object' && typeof PLAN_DATA !== 'undefined') {
-    PLAN_DATA = JSON.parse(JSON.stringify(state.planData));
-  }
-
-  if (Array.isArray(state.monthsConfig) && typeof MONTHS_CONFIG !== 'undefined' && Array.isArray(MONTHS_CONFIG)) {
-    MONTHS_CONFIG.length = 0;
-    state.monthsConfig.forEach(item => MONTHS_CONFIG.push(item));
-  }
-
-  const notes = state.monthNotes || {};
-  document.querySelectorAll('.month-notes[data-month]').forEach(el => {
-    const saved = notes[String(el.dataset.month)];
-    if (typeof saved === 'string') el.innerHTML = saved;
-  });
-
-  if (typeof state.currentMonthIdx === 'number') {
-    currentMonthIdx = state.currentMonthIdx;
-  }
-
-  _editMode = !!state.editMode;
-  document.body.classList.toggle('view-mode', !_editMode);
-  const editBtn = document.getElementById('editModeBtn');
-  if (editBtn) editBtn.textContent = _editMode ? '✏️ Modo Edição' : '👁️ Modo Visualização';
-}
-
-function makePersistedStateBlock(state) {
-  const json = JSON.stringify(state).replace(/<\/script/gi, '<\\/script');
-  return PERSIST_START + '\n' +
-    '<scr' + 'ipt>window.__PERSISTED_CALENDAR_STATE__ = ' + json + ';</scr' + 'ipt>\n' +
-    PERSIST_END;
-}
-
-function upsertPersistedStatePatch(src, state) {
-  const block = makePersistedStateBlock(state);
-
-  if (src.includes(PERSIST_START) && src.includes(PERSIST_END)) {
-    const startIdx = src.indexOf(PERSIST_START);
-    const endIdx = src.indexOf(PERSIST_END) + PERSIST_END.length;
-    return src.slice(0, startIdx) + block + src.slice(endIdx);
-  }
-
-  const firstScriptIdx = src.indexOf('<script>');
-  if (firstScriptIdx !== -1) {
-    return src.slice(0, firstScriptIdx) + block + '\n' + src.slice(firstScriptIdx);
-  }
-
-  return src.replace('</body>', block + '\n</body>');
-}
-
-function buildPersistentHtml() {
-  const state = collectCalendarState();
-  let src = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-
-  src = upsertPersistedStatePatch(src, state);
-  src = src.replace(/<input type="file"[^>]*style="display:\s*none;?"[^>]*>\s*$/m, '');
-  src = src.replace(/<\/script><input type="file"[^>]*style="display:\s*none;?"[^>]*>\s*/g, '</scr' + 'ipt>');
-  return src;
-}
-
-async function salvarAlteracoes() {
-  const token = getGithubToken();
-  if (!token) {
-    showToast('🔐 Token do GitHub não informado.');
-    return;
-  }
-
-  const { owner, repo, path, branch } = getGithubConfig();
-  if (!owner || owner === 'COLOQUE_AQUI' || !repo || repo === 'COLOQUE_AQUI') {
-    alert('Preencha owner e repo no GITHUB_CONFIG antes de salvar.');
-    return;
-  }
-
-  if (!path || path !== 'index.html') {
-    alert('O path do GITHUB_CONFIG deve ser exatamente index.html para este arquivo.');
-    return;
-  }
-
-  try {
-    showToast('☁️ Salvando no GitHub...');
-
-    const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-    const baseRepoUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
-    const contentsUrl = `${baseRepoUrl}/contents/${encodedPath}`;
-    const readUrl = `${contentsUrl}?ref=${encodeURIComponent(branch)}`;
-
-    const repoResp = await githubFetch(baseRepoUrl, {}, token);
-    if (!repoResp.ok) {
-      const errText = await repoResp.text();
-      if (repoResp.status === 404) throw new Error(`Repositório não encontrado. Confira owner e repo. ${errText}`);
-      if (repoResp.status === 401 || repoResp.status === 403) throw new Error(`Token sem acesso ao repositório. Verifique a permissão Contents: Read and write. ${errText}`);
-      throw new Error(`Não foi possível acessar o repositório (${repoResp.status}). ${errText}`);
-    }
-
-    let sha = null;
-    const getResp = await githubFetch(readUrl, {}, token);
-    if (getResp.ok) {
-      const fileData = await getResp.json();
-      sha = fileData.sha || null;
-    } else if (getResp.status !== 404) {
-      const errText = await getResp.text();
-      throw new Error(`Não foi possível ler o arquivo no GitHub (${getResp.status}). ${errText}`);
-    }
-
-    const html = buildPersistentHtml();
-    const payload = {
-      message: `Atualiza calendário editorial - ${new Date().toLocaleString('pt-BR')}`,
-      content: encodeBase64Unicode(html),
-      branch,
-      ...(sha ? { sha } : {})
-    };
-
-    const putResp = await githubFetch(contentsUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }, token);
-
-    if (!putResp.ok) {
-      const errText = await putResp.text();
-      if (putResp.status === 401 || putResp.status === 403) throw new Error(`GitHub recusou o salvamento. Revise o token e a permissão Contents: Read and write. ${errText}`);
-      if (putResp.status === 404) throw new Error(`Arquivo ou repositório não encontrado ao salvar. Confira owner, repo e path. ${errText}`);
-      if (putResp.status === 409) throw new Error(`Conflito ao salvar. Atualize a página publicada mais recente e tente novamente. ${errText}`);
-      if (putResp.status === 422) throw new Error(`GitHub rejeitou o conteúdo enviado. Confira owner, repo, branch e path. ${errText}`);
-      throw new Error(`Não foi possível salvar no GitHub (${putResp.status}). ${errText}`);
-    }
-
-    showToast('✅ Alterações salvas no GitHub!');
-    alert('Alterações salvas no GitHub com sucesso.');
-  } catch (err) {
-    console.error(err);
-    showToast('❌ Erro ao salvar no GitHub.');
-    alert(err.message || 'Erro ao salvar no GitHub.');
-  }
-}
-
 // ── Export ──
 function exportHTML(){
   const client = (document.getElementById('hdrClient')?.innerText || '').trim();
   const year = (document.getElementById('hdrYear')?.innerText || '').trim();
+  const sub = (document.getElementById('hdrSub')?.innerText || '').trim();
 
-  const src = buildPersistentHtml();
+  let src = document.documentElement.outerHTML;
+
+  src = src.replace(/(<span contenteditable="true" id="hdrClient"[^>]*>)([\s\S]*?)(<\/span>)/, `$1${client}$3`);
+  src = src.replace(/(<em contenteditable="true" id="hdrYear"[^>]*>)([\s\S]*?)(<\/em>)/, `$1${year}$3`);
+  src = src.replace(/(<span[^>]*id="hdrSub"[^>]*>)([\s\S]*?)(<\/span>)/, `$1${sub}$3`);
 
   const blob = new Blob([src], { type: 'text/html;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `calendario-editorial-${client.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'editavel'}-${year || '2026'}.html`;
+  a.download = `calendario-editorial-${client.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'editavel'}-${year || '2026'}.html`;
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
@@ -1755,7 +1499,6 @@ function showToast(msg){
 document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
 // ── Init ──
-applyPersistedCalendarState();
 buildMonthNav();
 renderAll();
 
@@ -1770,5 +1513,66 @@ const observer = new IntersectionObserver((entries)=>{
   });
 },{threshold:0.15});
 document.querySelectorAll('.month-block').forEach(el=>observer.observe(el));
+</script><input type="file" accept="image/*" multiple="" style="display: none;">
+
+
+
+<script>
+(function(){
+const supabase = window.supabase.createClient(
+'https://aprneolltdkizvfakuus.supabase.co',
+'sb_publishable_tmWBQV8mZnk7FBvq1iZ3pA_lprGokcu'
+);
+
+const ID = 'studio-m-abril';
+
+function getData(){
+return {
+html: document.getElementById('monthsContainer').innerHTML
+};
+}
+
+function applyData(data){
+if(data && data.html){
+document.getElementById('monthsContainer').innerHTML = data.html;
+}
+}
+
+async function saveSiteData(){
+const data = getData();
+
+localStorage.setItem(ID, JSON.stringify(data));
+
+try{
+await supabase.from('calendarios').upsert({
+id: ID,
+dados: data
+});
+alert('Salvo no site!');
+}catch(e){
+alert('Erro ao salvar');
+}
+}
+
+async function load(){
+try{
+const { data } = await supabase.from('calendarios').select('dados').eq('id', ID).single();
+if(data){
+applyData(data.dados);
+return;
+}
+}catch(e){}
+
+const local = localStorage.getItem(ID);
+if(local){
+applyData(JSON.parse(local));
+}
+}
+
+window.saveSiteData = saveSiteData;
+
+setTimeout(load, 500);
+})();
 </script>
+
 </body></html>
